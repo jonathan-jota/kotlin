@@ -273,7 +273,7 @@ internal abstract class AbstractValueUsageTransformer(
         return declaration
     }
 
-    override fun visitStaticallyInitializedArray(expression: IrStaticallyInitializedArray): IrStaticallyInitializedValue {
+    override fun visitConstantArray(expression: IrConstantArray): IrConstantValue {
         expression.transformChildrenVoid(this)
 
         val elementType = if (expression.type.isBoxedArray)
@@ -283,16 +283,16 @@ internal abstract class AbstractValueUsageTransformer(
                     ?: throw IllegalStateException("Unexpected array type ${expression.type.render()}")
 
         expression.elements.forEachIndexed { index, it ->
-            expression.putElement(index, it.useAs(elementType) as IrStaticallyInitializedValue)
+            expression.putElement(index, it.useAs(elementType) as IrConstantValue)
         }
         return expression
     }
 
-    override fun visitStaticallyInitializedObject(expression: IrStaticallyInitializedObject): IrStaticallyInitializedValue {
+    override fun visitConstantObject(expression: IrConstantObject): IrConstantValue {
         expression.transformChildrenVoid(this)
 
         expression.fields.forEach { (field, value) ->
-            expression.putField(field, value.useForField(field.owner) as IrStaticallyInitializedValue)
+            expression.putField(field, value.useForField(field.owner) as IrConstantValue)
         }
         return expression
     }
