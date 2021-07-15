@@ -128,17 +128,6 @@ private class ExpressionValuesExtractor(val context: Context,
 
             is IrWhen -> expression.branches.forEach { forEachValue(it.result, block) }
 
-            is IrMemberAccessExpression<*> -> block(expression)
-
-            is IrGetValue -> block(expression)
-
-            is IrGetField -> block(expression)
-
-            is IrVararg -> /* Sometimes, we keep vararg till codegen phase (for constant arrays). */
-                block(expression)
-
-            is IrConst<*> -> block(expression)
-
             is IrTypeOperatorCall -> {
                 if (!expression.operator.isCast())
                     block(expression)
@@ -156,11 +145,10 @@ private class ExpressionValuesExtractor(val context: Context,
                 expression.catches.forEach { forEachValue(it.result, block) }
             }
 
-            is IrGetObjectValue -> block(expression)
-
-            is IrFunctionReference -> block(expression)
-
-            is IrSetField -> block(expression)
+            is IrVararg, /* Sometimes, we keep vararg till codegen phase (for constant arrays). */
+            is IrMemberAccessExpression<*>, is IrGetValue, is IrGetField, is IrConst<*>,
+            is IrGetObjectValue, is IrFunctionReference, is IrSetField,
+            is IrConstantValue -> block(expression)
 
             else -> when {
                 expression.type.isUnit() -> unit
@@ -325,7 +313,9 @@ internal class ModuleDFGBuilder(val context: Context, val irModule: IrModuleFrag
                 is IrGetObjectValue,
                 is IrVararg,
                 is IrConst<*>,
-                is IrTypeOperatorCall ->
+                is IrTypeOperatorCall,
+                is IrConstantPrimitive,
+                is IrConstantIntrinsic ->
                     expressions += expression to currentLoop
             }
 
@@ -426,6 +416,45 @@ internal class ModuleDFGBuilder(val context: Context, val irModule: IrModuleFrag
             variableValues.addEmpty(declaration, currentLoop)
             super.visitVariable(declaration)
             declaration.initializer?.let { assignValue(declaration, it) }
+        }
+
+        override fun visitConstantArray(expression: IrConstantArray) {
+            super.visitConstantArray(expression)
+            expressions += expression to currentLoop
+            val arrayClass = expression.type.classOrNull
+            val arraySetSymbol = context.ir.symbols.arraySet[arrayClass] ?: error("Unexpected array type ${expression.type.render()}")
+            val isGeneric = arrayClass == context.irBuiltIns.arrayClass
+            expression.elements.forEachIndexed { index, value ->
+                val call = IrCallImpl(
+                        expression.startOffset, expression.endOffset,
+                        context.irBuiltIns.unitType,
+                        arraySetSymbol,
+                        typeArgumentsCount = if (isGeneric) 1 else 0,
+                        valueArgumentsCount = 2
+                ).apply {
+                    dispatchReceiver = expression
+                    if (isGeneric) putTypeArgument(0, value.type)
+                    val constInt = IrConstImpl.int(SYNTHETIC_OFFSET, SYNTHETIC_OFFSET, context.irBuiltIns.intType, index)
+                    expressions += constInt to currentLoop
+                    putValueArgument(0, constInt)
+                    putValueArgument(1, value)
+                }
+                expressions += call to currentLoop
+            }
+        }
+
+        override fun visitConstantObject(expression: IrConstantObject) {
+            super.visitConstantObject(expression)
+            expressions += expression to currentLoop
+            for ((field, value) in expression.fields) {
+                expressions += IrSetFieldImpl(
+                        expression.startOffset, expression.endOffset,
+                        field,
+                        expression,
+                        value,
+                        context.irBuiltIns.unitType,
+                ) to currentLoop
+            }
         }
     }
 
@@ -869,6 +898,13 @@ internal class ModuleDFGBuilder(val context: Context, val irModule: IrModuleFrag
                                 expressionToEdge(value.argument) // Put argument as a separate vertex.
                                 DataFlowIR.Node.Const(symbolTable.mapType(value.type)) // All operators except casts are basically constants.
                             }
+
+                            is IrConstantPrimitive -> getNode(value.value).value
+
+                            is IrConstantIntrinsic -> DataFlowIR.Node.Const(symbolTable.mapType(value.type))
+
+                            is IrConstantArray, is IrConstantObject ->
+                                DataFlowIR.Node.Singleton(symbolTable.mapType(value.type), null)
 
                             else -> TODO("Unknown expression: ${ir2stringWhole(value)}")
                         }
