@@ -10,11 +10,8 @@ import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.impl.*
 import org.jetbrains.kotlin.ir.symbols.*
-import org.jetbrains.kotlin.ir.types.IrType
-import org.jetbrains.kotlin.ir.types.typeWith
-import org.jetbrains.kotlin.ir.util.isImmutable
-import org.jetbrains.kotlin.ir.util.parentAsClass
-import org.jetbrains.kotlin.ir.util.render
+import org.jetbrains.kotlin.ir.types.*
+import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.utils.addToStdlib.assertedCast
 
@@ -375,3 +372,37 @@ inline fun IrBuilderWithScope.irBlockBody(
         endOffset
     ).blockBody(body)
 
+fun IrBuilderWithScope.irConstantPrimitive(value: IrConst<*>) =
+    IrConstantPrimitiveImpl(startOffset, endOffset, value)
+
+fun IrBuilderWithScope.irConstantIntrinsic(expression: IrExpression) =
+    IrConstantIntrinsicImpl(startOffset, endOffset, expression)
+
+fun IrBuilderWithScope.irConstantArray(type: IrType, elements: List<IrConstantValue>) =
+    IrConstantArrayImpl(
+        startOffset, endOffset,
+        type,
+        elements
+    )
+
+fun IrBuilderWithScope.irConstantObject(
+    type: IrType,
+    elements: Map<String, IrConstantValue>) : IrConstantValue {
+    val superSequence = generateSequence(type.getClass()!!) {
+        it.superTypes.asSequence()
+            .mapNotNull { type -> type.classOrNull?.owner?.takeIf { clazz -> !type.isAny() && !clazz.isInterface } }
+            .singleOrNull()
+    }
+    return IrConstantObjectImpl(
+        startOffset, endOffset,
+        type,
+        superSequence
+            .flatMap { it.properties.mapNotNull { it.backingField } }
+            .associate {
+                it.symbol to
+                        (elements[it.name.asString()] ?: throw IllegalArgumentException("No value for field named ${it.name} provided"))
+            }
+            .takeIf { it.size == elements.size }
+            ?: throw IllegalArgumentException("Too many values provided for ${type.render()}")
+    )
+}
