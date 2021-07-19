@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.ir.builders.declarations.buildFun
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrConst
+import org.jetbrains.kotlin.ir.expressions.IrConstantValue
 import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
 import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
 import org.jetbrains.kotlin.ir.util.hasAnnotation
@@ -113,5 +114,5 @@ internal class FileInitializersLowering(val context: Context) : FileLoweringPass
         get() = hasNonConstInitializer || needsGCRegistration(context)
 
     private val IrField.hasNonConstInitializer: Boolean
-        get() = initializer?.expression.let { it != null && it !is IrConst<*> }
+        get() = initializer?.expression.let { it != null && it !is IrConst<*> && it !is IrConstantValue }
 }

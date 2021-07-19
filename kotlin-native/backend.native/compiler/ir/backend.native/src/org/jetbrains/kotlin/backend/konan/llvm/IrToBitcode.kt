@@ -339,7 +339,8 @@ internal class CodeGeneratorVisitor(val context: Context, val lifetimes: Map<IrE
 
     private fun FunctionGenerationContext.initGlobalField(irField: IrField) {
         val address = context.llvmDeclarations.forStaticField(irField).storageAddressAccess.getAddress(this)
-        val initialValue = if (irField.initializer?.expression !is IrConst<*>?) {
+        val initialExpression = irField.initializer?.expression
+        val initialValue = if (initialExpression !is IrConst<*>? && initialExpression !is IrConstantValue) {
             val initialization = evaluateExpression(irField.initializer!!.expression)
             if (irField.storageKind == FieldStorageKind.SHARED_FROZEN)
                 freeze(initialization, currentCodeContext.exceptionHandler)
@@ -951,11 +952,13 @@ internal class CodeGeneratorVisitor(val context: Context, val lifetimes: Map<IrE
         if (context.needGlobalInit(declaration)) {
             val type = codegen.getLLVMType(declaration.type)
             val globalPropertyAccess = context.llvmDeclarations.forStaticField(declaration).storageAddressAccess
-            val initializer = declaration.initializer?.expression as? IrConst<*>
+            val initializer = declaration.initializer?.expression
             val globalProperty = (globalPropertyAccess as? GlobalAddressAccess)?.getAddress(null)
             if (globalProperty != null) {
-                LLVMSetInitializer(globalProperty, if (initializer != null)
-                    evaluateExpression(initializer) else LLVMConstNull(type))
+                LLVMSetInitializer(globalProperty, when (initializer) {
+                    is IrConst<*>, is IrConstantValue -> evaluateExpression(initializer)
+                    else -> LLVMConstNull(type)
+                })
                 // (Cannot do this before the global is initialized).
                 LLVMSetLinkage(globalProperty, LLVMLinkage.LLVMInternalLinkage)
             }
