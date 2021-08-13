@@ -731,7 +731,7 @@ class RenderIrElementVisitor(private val normalizeNames: Boolean = false, privat
         "CONSTANT_ARRAY type=${expression.type.render()}"
 
     override fun visitConstantObject(expression: IrConstantObject, data: Nothing?): String =
-        "CONSTANT_OBJECT type=${expression.type.render()} constructedType=${expression.constructedType.render()}"
+        "CONSTANT_OBJECT type=${expression.type.render()} constructor=${expression.constructor.renderReference()}"
 
     override fun visitConstantPrimitive(expression: IrConstantPrimitive, data: Nothing?): String =
         "CONSTANT_PRIMITIVE type=${expression.type.render()}"

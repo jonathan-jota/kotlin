@@ -172,17 +172,16 @@ private class AutoboxingTransformer(val context: Context) : AbstractValueUsageTr
                             getInlineClassBackingField(clazz).symbol
                         IrConstantObjectImpl(
                                 this.startOffset, this.endOffset,
-                                this.type,
+                                this.type.getClass()!!.primaryConstructor!!.symbol,
                                 mapOf(field to this),
-                        ).apply {
-                            type = irBuiltIns.anyNType
-                        }
+                                irBuiltIns.anyNType
+                        )
                     }
                     is IrConstantObject -> {
                         if (isBoxing) {
                             this.type = irBuiltIns.anyNType
                         } else {
-                            this.type = this.constructedType
+                            this.type = this.constructor.owner.constructedClassType
                         }
                         this
                     }

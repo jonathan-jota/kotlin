@@ -395,7 +395,7 @@ fun IrBuilderWithScope.irConstantObject(
     }
     return IrConstantObjectImpl(
         startOffset, endOffset,
-        type,
+        type.getClass()!!.primaryConstructor!!.symbol,
         superSequence
             .flatMap { it.properties.mapNotNull { it.backingField } }
             .associate {

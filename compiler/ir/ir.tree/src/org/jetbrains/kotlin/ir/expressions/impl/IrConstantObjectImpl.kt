@@ -6,8 +6,10 @@
 package org.jetbrains.kotlin.ir.expressions.impl
 
 import org.jetbrains.kotlin.ir.expressions.*
+import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
 import org.jetbrains.kotlin.ir.symbols.IrFieldSymbol
 import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.ir.util.constructedClassType
 import org.jetbrains.kotlin.ir.util.transformInPlace
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
@@ -44,10 +46,10 @@ class IrConstantPrimitiveImpl(
 class IrConstantObjectImpl(
     override val startOffset: Int,
     override val endOffset: Int,
-    override var constructedType: IrType,
+    override var constructor: IrConstructorSymbol,
     fields_: Map<IrFieldSymbol, IrConstantValue>,
+    override var type: IrType = constructor.owner.constructedClassType,
 ) : IrConstantObject() {
-    override var type = constructedType
     override val fields = fields_.toMutableMap()
     override fun <R, D> accept(visitor: IrElementVisitor<R, D>, data: D): R {
         return visitor.visitConstantObject(this, data)
@@ -60,12 +62,12 @@ class IrConstantObjectImpl(
     override fun contentEquals(other: IrConstantValue): Boolean =
         other is IrConstantObjectImpl &&
                 other.type == type &&
-                other.constructedType == constructedType &&
+                other.constructor == constructor &&
                 fields.size == other.fields.size &&
                 fields.all { (field, value) -> other.fields[field]?.contentEquals(value) == true }
 
     override fun contentHashCode(): Int {
-        var res = type.hashCode() * 31 + constructedType.hashCode()
+        var res = type.hashCode() * 31 + constructor.hashCode()
         for ((field, value) in fields) {
             res += field.hashCode() xor value.contentHashCode()
         }

@@ -1857,17 +1857,18 @@ internal class CodeGeneratorVisitor(val context: Context, val lifetimes: Map<IrE
                 )
             }
             is IrConstantObject -> {
-                val clazz = value.constructedType.getClass()!!
-                val needUnBoxing = value.constructedType.getInlinedClassNative() != null &&
-                        context.ir.symbols.getTypeConversion(value.constructedType, value.type) == null
+                val constructedType = value.constructor.owner.constructedClassType
+                val constructedClass = constructedType.getClass()!!
+                val needUnBoxing = constructedType.getInlinedClassNative() != null &&
+                        context.ir.symbols.getTypeConversion(constructedType, value.type) == null
                 if (needUnBoxing) {
                     val unboxed = value.fields.values.singleOrNull()
                             ?: error("Inlined class should have exactly one field")
                     return evaluateConstantValue(unboxed)
                 }
                 context.llvm.staticData.createConstKotlinObject(
-                        clazz,
-                        *context.getLayoutBuilder(clazz).fields.map {
+                        constructedClass,
+                        *context.getLayoutBuilder(constructedClass).fields.map {
                             evaluateConstantValue(value.fields[it.symbol]
                                     ?: error("Bad statically initialized object: field ${it.kotlinFqName} value not set"))
                         }.also {

@@ -409,11 +409,10 @@ open class DeepCopyIrTreeWithSymbols(
     override fun visitConstantObject(expression: IrConstantObject): IrConstantValue =
         IrConstantObjectImpl(
             expression.startOffset, expression.endOffset,
-            expression.constructedType.remapType(),
+            symbolRemapper.getReferencedConstructor(expression.constructor),
             expression.fields.entries.associate { (key, value) -> symbolRemapper.getReferencedField(key) to value.transform() },
-        ).apply {
-            this.type = expression.type.remapType()
-        }.copyAttributes(expression)
+            expression.type.remapType()
+        ).copyAttributes(expression)
 
     override fun visitConstantPrimitive(expression: IrConstantPrimitive): IrConstantValue =
         IrConstantPrimitiveImpl(

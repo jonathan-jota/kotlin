@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.ir.expressions
 
+import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
 import org.jetbrains.kotlin.ir.symbols.IrFieldSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
@@ -18,12 +19,7 @@ abstract class IrConstantPrimitive : IrConstantValue() {
 }
 
 abstract class IrConstantObject : IrConstantValue() {
-    /*
-     * IrExpression::type can differ from constructedType, if object need to be used as
-     * object of more generic type. This can, for example, happen because of value classes
-     * being used in context, which requires boxing.
-     */
-    abstract var constructedType: IrType
+    abstract var constructor: IrConstructorSymbol
     abstract val fields: Map<IrFieldSymbol, IrConstantValue>
     abstract fun putField(field: IrFieldSymbol, value: IrConstantValue)
 }
