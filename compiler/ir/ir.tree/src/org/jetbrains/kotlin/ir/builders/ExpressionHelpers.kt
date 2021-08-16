@@ -388,21 +388,32 @@ fun IrBuilderWithScope.irConstantArray(type: IrType, elements: List<IrConstantVa
 fun IrBuilderWithScope.irConstantObject(
     type: IrType,
     elements: Map<String, IrConstantValue>) : IrConstantValue {
-    val superSequence = generateSequence(type.getClass()!!) {
+    val fields = generateSequence(type.getClass()!!) {
         it.superTypes.asSequence()
             .mapNotNull { type -> type.classOrNull?.owner?.takeIf { clazz -> !type.isAny() && !clazz.isInterface } }
             .singleOrNull()
+    }.flatMap { it.properties.mapNotNull { it.backingField } }
+
+    val constructor = type.getClass()!!.primaryConstructor!!
+
+    val fieldsMap = fields
+        .associate {
+            val value = (elements[it.name.asString()] ?: throw IllegalArgumentException("No value for field named ${it.name} provided"))
+            it.symbol to value
+        }.takeIf { it.size == elements.size }
+        ?: throw IllegalArgumentException("Too many values provided for ${type.render()}")
+
+    val parametersToFields = constructor.valueParameters.map { param ->
+        fields
+            .singleOrNull { field -> field.name == param.name }
+            ?.symbol
+            ?: throw IllegalArgumentException("No field matched to constructor arguemnt ${param.name}")
     }
+
     return IrConstantObjectImpl(
         startOffset, endOffset,
-        type.getClass()!!.primaryConstructor!!.symbol,
-        superSequence
-            .flatMap { it.properties.mapNotNull { it.backingField } }
-            .associate {
-                it.symbol to
-                        (elements[it.name.asString()] ?: throw IllegalArgumentException("No value for field named ${it.name} provided"))
-            }
-            .takeIf { it.size == elements.size }
-            ?: throw IllegalArgumentException("Too many values provided for ${type.render()}")
+        constructor.symbol,
+        parametersToFields,
+        fieldsMap
     )
 }

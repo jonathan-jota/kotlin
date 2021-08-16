@@ -20,6 +20,7 @@ abstract class IrConstantPrimitive : IrConstantValue() {
 
 abstract class IrConstantObject : IrConstantValue() {
     abstract var constructor: IrConstructorSymbol
+    abstract val constructorArgumentsToFields: List<IrFieldSymbol>
     abstract val fields: Map<IrFieldSymbol, IrConstantValue>
     abstract fun putField(field: IrFieldSymbol, value: IrConstantValue)
 }

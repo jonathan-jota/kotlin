@@ -43,10 +43,11 @@ class IrConstantPrimitiveImpl(
     }
 }
 
-class IrConstantObjectImpl(
+class IrConstantObjectImpl constructor(
     override val startOffset: Int,
     override val endOffset: Int,
     override var constructor: IrConstructorSymbol,
+    override val constructorArgumentsToFields: List<IrFieldSymbol>,
     fields_: Map<IrFieldSymbol, IrConstantValue>,
     override var type: IrType = constructor.owner.constructedClassType,
 ) : IrConstantObject() {

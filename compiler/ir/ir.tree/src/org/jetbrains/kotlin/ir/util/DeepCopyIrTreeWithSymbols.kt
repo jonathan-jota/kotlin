@@ -410,6 +410,7 @@ open class DeepCopyIrTreeWithSymbols(
         IrConstantObjectImpl(
             expression.startOffset, expression.endOffset,
             symbolRemapper.getReferencedConstructor(expression.constructor),
+            expression.constructorArgumentsToFields.map { symbolRemapper.getReferencedField(it) },
             expression.fields.entries.associate { (key, value) -> symbolRemapper.getReferencedField(key) to value.transform() },
             expression.type.remapType()
         ).copyAttributes(expression)
