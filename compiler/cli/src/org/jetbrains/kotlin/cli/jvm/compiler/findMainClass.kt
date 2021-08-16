@@ -5,21 +5,31 @@
 
 package org.jetbrains.kotlin.cli.jvm.compiler
 
+import org.jetbrains.kotlin.cfg.getElementParentDeclaration
 import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.fileClasses.JvmFileClassUtil
 import org.jetbrains.kotlin.idea.MainFunctionDetector
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtObjectDeclaration
 import org.jetbrains.kotlin.resolve.BindingContext
 
 fun findMainClass(bindingContext: BindingContext, languageVersionSettings: LanguageVersionSettings, files: List<KtFile>): FqName? {
     val mainFunctionDetector = MainFunctionDetector(bindingContext, languageVersionSettings)
     return files.asSequence()
         .map { file ->
-            if (mainFunctionDetector.hasMain(file.declarations))
-                JvmFileClassUtil.getFileClassInfoNoResolve(file).facadeClassFqName
-            else
-                null
+            mainFunctionDetector.findMainFunction(file.declarations)?.let { mainFunction ->
+                if (mainFunction.isTopLevel) {
+                    JvmFileClassUtil.getFileClassInfoNoResolve(file).facadeClassFqName
+                } else {
+                    val parent = mainFunction.getElementParentDeclaration()
+                    if (parent is KtObjectDeclaration && parent.isCompanion()) {
+                        mainFunction.fqName?.parent()?.parent()
+                    } else {
+                        mainFunction.fqName?.parent()
+                    }
+                }
+            }
         }
         .singleOrNull { it != null }
 }
