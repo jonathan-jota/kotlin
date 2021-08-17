@@ -167,14 +167,15 @@ private class AutoboxingTransformer(val context: Context) : AbstractValueUsageTr
                         require(isBoxing) { "Can't unbox IrConstantPrimitive" }
                         val clazz = this.type.getClass()!!
                         val field = if (clazz.isNativePrimitiveType())
-                            getOrCreatePrimitiveBoxField(clazz).symbol
+                            getOrCreatePrimitiveBoxField(clazz)
                         else
-                            getInlineClassBackingField(clazz).symbol
+                            getInlineClassBackingField(clazz)
+                        val property = field.correspondingPropertySymbol!!
                         IrConstantObjectImpl(
                                 this.startOffset, this.endOffset,
                                 this.type.getClass()!!.primaryConstructor!!.symbol,
-                                listOf(field),
-                                mapOf(field to this),
+                                listOf(property),
+                                mapOf(property to this),
                                 irBuiltIns.anyNType
                         )
                     }
@@ -612,6 +613,7 @@ private fun getOrCreatePrimitiveBoxField(declaration: IrClass) : IrField {
             isExternal = false
     )
     irProperty.backingField = irField
+    irField.correspondingPropertySymbol = irProperty.symbol
 
     declaration.addChild(irProperty)
     return irField

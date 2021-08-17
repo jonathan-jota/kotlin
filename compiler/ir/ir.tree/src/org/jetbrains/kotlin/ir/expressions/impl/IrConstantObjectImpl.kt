@@ -7,7 +7,7 @@ package org.jetbrains.kotlin.ir.expressions.impl
 
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
-import org.jetbrains.kotlin.ir.symbols.IrFieldSymbol
+import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.util.constructedClassType
 import org.jetbrains.kotlin.ir.util.transformInPlace
@@ -47,41 +47,46 @@ class IrConstantObjectImpl constructor(
     override val startOffset: Int,
     override val endOffset: Int,
     override var constructor: IrConstructorSymbol,
-    override val constructorArgumentsToFields: List<IrFieldSymbol>,
-    fields_: Map<IrFieldSymbol, IrConstantValue>,
+    override val constructorArgumentsToProperties: List<IrPropertySymbol>,
+    properties_: Map<IrPropertySymbol, IrConstantValue>,
     override var type: IrType = constructor.owner.constructedClassType,
 ) : IrConstantObject() {
-    override val fields = fields_.toMutableMap()
+    override val properties = properties_.toMutableMap()
+
+    init {
+        require(properties.all { it.key.owner.backingField != null })
+    }
+
     override fun <R, D> accept(visitor: IrElementVisitor<R, D>, data: D): R {
         return visitor.visitConstantObject(this, data)
     }
 
-    override fun putField(field: IrFieldSymbol, value: IrConstantValue) {
-        fields[field] = value
+    override fun putProperty(property: IrPropertySymbol, value: IrConstantValue) {
+        properties[property] = value
     }
 
     override fun contentEquals(other: IrConstantValue): Boolean =
         other is IrConstantObjectImpl &&
                 other.type == type &&
                 other.constructor == constructor &&
-                fields.size == other.fields.size &&
-                fields.all { (field, value) -> other.fields[field]?.contentEquals(value) == true }
+                properties.size == other.properties.size &&
+                properties.all { (field, value) -> other.properties[field]?.contentEquals(value) == true }
 
     override fun contentHashCode(): Int {
         var res = type.hashCode() * 31 + constructor.hashCode()
-        for ((field, value) in fields) {
+        for ((field, value) in properties) {
             res += field.hashCode() xor value.contentHashCode()
         }
         return res
     }
 
     override fun <D> acceptChildren(visitor: IrElementVisitor<Unit, D>, data: D) {
-        fields.forEach { (_, value) -> value.accept(visitor, data) }
+        properties.forEach { (_, value) -> value.accept(visitor, data) }
     }
 
     override fun <D> transformChildren(transformer: IrElementTransformer<D>, data: D) {
-        for ((field, value) in fields) {
-            fields[field] = value.transform(transformer, data) as IrConstantValue
+        for ((property, value) in properties) {
+            properties[property] = value.transform(transformer, data) as IrConstantValue
         }
     }
 }

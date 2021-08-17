@@ -353,8 +353,8 @@ class DumpIrTreeVisitor(
 
     override fun visitConstantObject(expression: IrConstantObject, data: String) {
         expression.dumpLabeledElementWith(data) {
-            for ((field, value) in expression.fields) {
-                value.accept(this, field.toString())
+            for ((property, value) in expression.properties) {
+                value.accept(this, property.toString())
             }
         }
     }

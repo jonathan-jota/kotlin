@@ -291,8 +291,8 @@ internal abstract class AbstractValueUsageTransformer(
     override fun visitConstantObject(expression: IrConstantObject): IrConstantValue {
         expression.transformChildrenVoid(this)
 
-        expression.fields.forEach { (field, value) ->
-            expression.putField(field, value.useForField(field.owner) as IrConstantValue)
+        expression.properties.forEach { (property, value) ->
+            expression.putProperty(property, value.useForField(property.owner.backingField!!) as IrConstantValue)
         }
         return expression
     }

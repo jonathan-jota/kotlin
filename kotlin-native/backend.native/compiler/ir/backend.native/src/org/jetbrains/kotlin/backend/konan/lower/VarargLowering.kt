@@ -302,7 +302,7 @@ internal class VarargInjectionLowering constructor(val context: KonanBackendCont
                         builder.irConstantPrimitive(castedConst)
                     }
                     is IrConstantObject -> {
-                        it.fields.values.singleOrNull()
+                        it.properties.values.singleOrNull()
                                 ?: error("Constant of type ${it.type.render()} is expected to have exactly one field")
                     }
                     else -> error("unsigned integer can't be represented as ${it::class.qualifiedName}")

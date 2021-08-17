@@ -6,8 +6,7 @@
 package org.jetbrains.kotlin.ir.expressions
 
 import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
-import org.jetbrains.kotlin.ir.symbols.IrFieldSymbol
-import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
 
 abstract class IrConstantValue : IrExpression() {
     abstract fun contentEquals(other: IrConstantValue) : Boolean
@@ -20,9 +19,9 @@ abstract class IrConstantPrimitive : IrConstantValue() {
 
 abstract class IrConstantObject : IrConstantValue() {
     abstract var constructor: IrConstructorSymbol
-    abstract val constructorArgumentsToFields: List<IrFieldSymbol>
-    abstract val fields: Map<IrFieldSymbol, IrConstantValue>
-    abstract fun putField(field: IrFieldSymbol, value: IrConstantValue)
+    abstract val constructorArgumentsToProperties: List<IrPropertySymbol>
+    abstract val properties: Map<IrPropertySymbol, IrConstantValue>
+    abstract fun putProperty(property: IrPropertySymbol, value: IrConstantValue)
 }
 
 abstract class IrConstantArray : IrConstantValue() {

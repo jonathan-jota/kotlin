@@ -388,23 +388,23 @@ fun IrBuilderWithScope.irConstantArray(type: IrType, elements: List<IrConstantVa
 fun IrBuilderWithScope.irConstantObject(
     type: IrType,
     elements: Map<String, IrConstantValue>) : IrConstantValue {
-    val fields = generateSequence(type.getClass()!!) {
+    val properties = generateSequence(type.getClass()!!) {
         it.superTypes.asSequence()
             .mapNotNull { type -> type.classOrNull?.owner?.takeIf { clazz -> !type.isAny() && !clazz.isInterface } }
             .singleOrNull()
-    }.flatMap { it.properties.mapNotNull { it.backingField } }
+    }.flatMap { it.properties.filter { it.backingField != null } }
 
     val constructor = type.getClass()!!.primaryConstructor!!
 
-    val fieldsMap = fields
+    val propertiesMap = properties
         .associate {
             val value = (elements[it.name.asString()] ?: throw IllegalArgumentException("No value for field named ${it.name} provided"))
             it.symbol to value
         }.takeIf { it.size == elements.size }
         ?: throw IllegalArgumentException("Too many values provided for ${type.render()}")
 
-    val parametersToFields = constructor.valueParameters.map { param ->
-        fields
+    val parametersToProperties = constructor.valueParameters.map { param ->
+        properties
             .singleOrNull { field -> field.name == param.name }
             ?.symbol
             ?: throw IllegalArgumentException("No field matched to constructor arguemnt ${param.name}")
@@ -413,7 +413,7 @@ fun IrBuilderWithScope.irConstantObject(
     return IrConstantObjectImpl(
         startOffset, endOffset,
         constructor.symbol,
-        parametersToFields,
-        fieldsMap
+        parametersToProperties,
+        propertiesMap
     )
 }

@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.backend.konan.optimizations
 
-import org.jetbrains.kotlin.backend.common.atMostOne
 import org.jetbrains.kotlin.backend.common.ir.allParameters
 import org.jetbrains.kotlin.backend.common.ir.ir2stringWhole
 import org.jetbrains.kotlin.backend.common.ir.simpleFunctions
@@ -13,9 +12,7 @@ import org.jetbrains.kotlin.backend.common.peek
 import org.jetbrains.kotlin.backend.common.pop
 import org.jetbrains.kotlin.backend.common.push
 import org.jetbrains.kotlin.backend.konan.*
-import org.jetbrains.kotlin.backend.konan.descriptors.allOverriddenFunctions
 import org.jetbrains.kotlin.backend.konan.ir.*
-import org.jetbrains.kotlin.backend.konan.llvm.computeFunctionName
 import org.jetbrains.kotlin.backend.konan.llvm.localHash
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
@@ -446,10 +443,10 @@ internal class ModuleDFGBuilder(val context: Context, val irModule: IrModuleFrag
         override fun visitConstantObject(expression: IrConstantObject) {
             super.visitConstantObject(expression)
             expressions += expression to currentLoop
-            for ((field, value) in expression.fields) {
+            for ((property, value) in expression.properties) {
                 expressions += IrSetFieldImpl(
                         expression.startOffset, expression.endOffset,
-                        field,
+                        property.owner.backingField!!.symbol,
                         expression,
                         value,
                         context.irBuiltIns.unitType,

@@ -1862,17 +1862,17 @@ internal class CodeGeneratorVisitor(val context: Context, val lifetimes: Map<IrE
                 val needUnBoxing = constructedType.getInlinedClassNative() != null &&
                         context.ir.symbols.getTypeConversion(constructedType, value.type) == null
                 if (needUnBoxing) {
-                    val unboxed = value.fields.values.singleOrNull()
+                    val unboxed = value.properties.values.singleOrNull()
                             ?: error("Inlined class should have exactly one field")
                     return evaluateConstantValue(unboxed)
                 }
                 context.llvm.staticData.createConstKotlinObject(
                         constructedClass,
                         *context.getLayoutBuilder(constructedClass).fields.map {
-                            evaluateConstantValue(value.fields[it.symbol]
+                            evaluateConstantValue(value.properties[it.correspondingPropertySymbol]
                                     ?: error("Bad statically initialized object: field ${it.kotlinFqName} value not set"))
                         }.also {
-                            require(it.size == value.fields.size) { "Bad statically initialized object: too many fields" }
+                            require(it.size == value.properties.size) { "Bad statically initialized object: too many fields" }
                         }.toTypedArray()
                 )
             }
