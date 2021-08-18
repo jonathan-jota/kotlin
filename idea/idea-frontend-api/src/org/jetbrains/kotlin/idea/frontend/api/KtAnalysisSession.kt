@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.psi.*
 public abstract class KtAnalysisSession(final override val token: ValidityToken) : ValidityTokenOwner,
     KtSmartCastProviderMixIn,
     KtCallResolverMixIn,
+    KtSamResolverMixIn,
     KtDiagnosticProviderMixIn,
     KtScopeProviderMixIn,
     KtCompletionCandidateCheckerMixIn,
@@ -69,6 +70,9 @@ public abstract class KtAnalysisSession(final override val token: ValidityToken)
 
     internal val callResolver: KtCallResolver get() = callResolverImpl
     protected abstract val callResolverImpl: KtCallResolver
+
+    internal val samResolver: KtSamResolver get() = samResolverImpl
+    protected abstract val samResolverImpl: KtSamResolver
 
     internal val completionCandidateChecker: KtCompletionCandidateChecker get() = completionCandidateCheckerImpl
     protected abstract val completionCandidateCheckerImpl: KtCompletionCandidateChecker
