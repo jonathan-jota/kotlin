@@ -18,11 +18,11 @@ import org.jetbrains.kotlin.fir.references.FirResolvedNamedReference
 import org.jetbrains.kotlin.fir.resolve.diagnostics.ConeUnresolvedNameError
 import org.jetbrains.kotlin.fir.resolve.toSymbol
 import org.jetbrains.kotlin.fir.types.*
+import org.jetbrains.kotlin.idea.fir.getCandidateSymbols
 import org.jetbrains.kotlin.idea.frontend.api.symbols.markers.KtConstantValue
 import org.jetbrains.kotlin.idea.frontend.api.symbols.markers.KtSimpleConstantValue
 import org.jetbrains.kotlin.idea.frontend.api.symbols.markers.KtUnsupportedConstantValue
 import org.jetbrains.kotlin.idea.frontend.api.types.KtTypeNullability
-import org.jetbrains.kotlin.idea.references.FirReferenceResolveHelper
 import org.jetbrains.kotlin.psi.KtAnnotatedExpression
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtLabeledExpression
@@ -40,7 +40,7 @@ internal fun KtExpression.unwrap(): KtExpression {
 internal fun FirNamedReference.getReferencedElementType(): ConeKotlinType {
     val symbols = when (this) {
         is FirResolvedNamedReference -> listOf(resolvedSymbol)
-        is FirErrorNamedReference -> FirReferenceResolveHelper.getFirSymbolsByErrorNamedReference(this)
+        is FirErrorNamedReference -> getCandidateSymbols()
         else -> error("Unexpected ${this::class}")
     }
     val firCallableDeclaration = symbols.singleOrNull()?.fir as? FirCallableDeclaration
