@@ -89,6 +89,8 @@ class FirValueParameterSymbol(name: Name) : FirVariableSymbol<FirValueParameter>
 class FirErrorPropertySymbol(
     val diagnostic: ConeDiagnostic
 ) : FirVariableSymbol<FirErrorProperty>(CallableId(FqName.ROOT, null, NAME)) {
+    override val isError: Boolean = true
+
     companion object {
         val NAME: Name = Name.special("<error property>")
     }

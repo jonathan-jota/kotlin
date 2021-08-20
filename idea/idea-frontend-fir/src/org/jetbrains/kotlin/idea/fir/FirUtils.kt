@@ -37,7 +37,11 @@ internal fun FirReference.getResolvedKtSymbolOfNameReference(builder: KtSymbolBy
     getResolvedSymbolOfNameReference()?.fir?.let(builder::buildSymbol)
 
 internal fun FirErrorNamedReference.getCandidateSymbols(): Collection<FirBasedSymbol<*>> =
-    diagnostic.getCandidateSymbols()
+    diagnostic.getCandidateSymbols().ifEmpty {
+        // Some ConeDiagnostics don't have a reference to a candidate symbol. But we can use the candidate symbol from the reference
+        // as a fallback, as long as it's not an error symbol.
+        candidateSymbol?.let { if (it.isError) emptyList() else listOf(it) } ?: emptyList()
+    }
 
 internal fun FirNamedReference.getCandidateSymbols(): Collection<FirBasedSymbol<*>> = when (this) {
     is FirResolvedNamedReference -> listOf(resolvedSymbol)

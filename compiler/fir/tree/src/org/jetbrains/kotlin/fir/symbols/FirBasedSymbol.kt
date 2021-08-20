@@ -30,6 +30,8 @@ abstract class FirBasedSymbol<E : FirDeclaration> {
 
     val moduleData: FirModuleData
         get() = fir.moduleData
+
+    open val isError: Boolean = false
 }
 
 @RequiresOptIn
