@@ -31,8 +31,10 @@ class RuntimeLibraryInClasspathTest {
     }
 }
 
-internal fun getSerializationCoreLibraryJar(): File? = try {
-    PathUtil.getResourcePathForClass(Class.forName("kotlinx.serialization.KSerializer"))
+internal fun getSerializationCoreLibraryJar(): File? = getSerializationLibraryJar("kotlinx.serialization.KSerializer")
+
+internal fun getSerializationLibraryJar(classToDetect: String): File? = try {
+    PathUtil.getResourcePathForClass(Class.forName(classToDetect))
 } catch (e: ClassNotFoundException) {
     null
 }
