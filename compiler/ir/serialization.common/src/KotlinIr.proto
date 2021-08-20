@@ -539,6 +539,7 @@ message IrValueParameter {
   required int64 name_type = 2;
   optional int32 vararg_element_type = 3;
   optional int32 default_value = 4;
+  optional int64 corresponding_property_symbol = 5;
   optional int32 index = 105;
 }
 

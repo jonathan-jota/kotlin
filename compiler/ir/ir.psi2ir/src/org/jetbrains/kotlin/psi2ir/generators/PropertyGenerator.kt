@@ -63,7 +63,7 @@ class PropertyGenerator(declarationGenerator: DeclarationGenerator) : Declaratio
         }
     }
 
-    fun generatePropertyForPrimaryConstructorParameter(ktParameter: KtParameter, irValueParameter: IrValueParameter): IrDeclaration {
+    fun generatePropertyForPrimaryConstructorParameter(ktParameter: KtParameter, irValueParameter: IrValueParameter): IrProperty {
         val propertyDescriptor = getOrFail(BindingContext.PRIMARY_CONSTRUCTOR_PARAMETER, ktParameter)
         return generateSyntheticProperty(ktParameter, propertyDescriptor, irValueParameter)
     }

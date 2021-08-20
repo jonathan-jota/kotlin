@@ -81,8 +81,13 @@ public final class IrValueParameter extends
             defaultValue_ = input.readInt32();
             break;
           }
-          case 840: {
+          case 40: {
             bitField0_ |= 0x00000010;
+            correspondingPropertySymbol_ = input.readInt64();
+            break;
+          }
+          case 840: {
+            bitField0_ |= 0x00000020;
             index_ = input.readInt32();
             break;
           }
@@ -180,13 +185,28 @@ public final class IrValueParameter extends
     return defaultValue_;
   }
 
+  public static final int CORRESPONDING_PROPERTY_SYMBOL_FIELD_NUMBER = 5;
+  private long correspondingPropertySymbol_;
+  /**
+   * <code>optional int64 corresponding_property_symbol = 5;</code>
+   */
+  public boolean hasCorrespondingPropertySymbol() {
+    return ((bitField0_ & 0x00000010) == 0x00000010);
+  }
+  /**
+   * <code>optional int64 corresponding_property_symbol = 5;</code>
+   */
+  public long getCorrespondingPropertySymbol() {
+    return correspondingPropertySymbol_;
+  }
+
   public static final int INDEX_FIELD_NUMBER = 105;
   private int index_;
   /**
    * <code>optional int32 index = 105;</code>
    */
   public boolean hasIndex() {
-    return ((bitField0_ & 0x00000010) == 0x00000010);
+    return ((bitField0_ & 0x00000020) == 0x00000020);
   }
   /**
    * <code>optional int32 index = 105;</code>
@@ -200,6 +220,7 @@ public final class IrValueParameter extends
     nameType_ = 0L;
     varargElementType_ = 0;
     defaultValue_ = 0;
+    correspondingPropertySymbol_ = 0L;
     index_ = 0;
   }
   private byte memoizedIsInitialized = -1;
@@ -240,6 +261,9 @@ public final class IrValueParameter extends
       output.writeInt32(4, defaultValue_);
     }
     if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      output.writeInt64(5, correspondingPropertySymbol_);
+    }
+    if (((bitField0_ & 0x00000020) == 0x00000020)) {
       output.writeInt32(105, index_);
     }
     output.writeRawBytes(unknownFields);
@@ -268,6 +292,10 @@ public final class IrValueParameter extends
         .computeInt32Size(4, defaultValue_);
     }
     if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      size += org.jetbrains.kotlin.protobuf.CodedOutputStream
+        .computeInt64Size(5, correspondingPropertySymbol_);
+    }
+    if (((bitField0_ & 0x00000020) == 0x00000020)) {
       size += org.jetbrains.kotlin.protobuf.CodedOutputStream
         .computeInt32Size(105, index_);
     }
@@ -373,8 +401,10 @@ public final class IrValueParameter extends
       bitField0_ = (bitField0_ & ~0x00000004);
       defaultValue_ = 0;
       bitField0_ = (bitField0_ & ~0x00000008);
-      index_ = 0;
+      correspondingPropertySymbol_ = 0L;
       bitField0_ = (bitField0_ & ~0x00000010);
+      index_ = 0;
+      bitField0_ = (bitField0_ & ~0x00000020);
       return this;
     }
 
@@ -417,6 +447,10 @@ public final class IrValueParameter extends
       if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
         to_bitField0_ |= 0x00000010;
       }
+      result.correspondingPropertySymbol_ = correspondingPropertySymbol_;
+      if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+        to_bitField0_ |= 0x00000020;
+      }
       result.index_ = index_;
       result.bitField0_ = to_bitField0_;
       return result;
@@ -435,6 +469,9 @@ public final class IrValueParameter extends
       }
       if (other.hasDefaultValue()) {
         setDefaultValue(other.getDefaultValue());
+      }
+      if (other.hasCorrespondingPropertySymbol()) {
+        setCorrespondingPropertySymbol(other.getCorrespondingPropertySymbol());
       }
       if (other.hasIndex()) {
         setIndex(other.getIndex());
@@ -635,12 +672,44 @@ public final class IrValueParameter extends
       return this;
     }
 
+    private long correspondingPropertySymbol_ ;
+    /**
+     * <code>optional int64 corresponding_property_symbol = 5;</code>
+     */
+    public boolean hasCorrespondingPropertySymbol() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional int64 corresponding_property_symbol = 5;</code>
+     */
+    public long getCorrespondingPropertySymbol() {
+      return correspondingPropertySymbol_;
+    }
+    /**
+     * <code>optional int64 corresponding_property_symbol = 5;</code>
+     */
+    public Builder setCorrespondingPropertySymbol(long value) {
+      bitField0_ |= 0x00000010;
+      correspondingPropertySymbol_ = value;
+      
+      return this;
+    }
+    /**
+     * <code>optional int64 corresponding_property_symbol = 5;</code>
+     */
+    public Builder clearCorrespondingPropertySymbol() {
+      bitField0_ = (bitField0_ & ~0x00000010);
+      correspondingPropertySymbol_ = 0L;
+      
+      return this;
+    }
+
     private int index_ ;
     /**
      * <code>optional int32 index = 105;</code>
      */
     public boolean hasIndex() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
      * <code>optional int32 index = 105;</code>
@@ -652,7 +721,7 @@ public final class IrValueParameter extends
      * <code>optional int32 index = 105;</code>
      */
     public Builder setIndex(int value) {
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00000020;
       index_ = value;
       
       return this;
@@ -661,7 +730,7 @@ public final class IrValueParameter extends
      * <code>optional int32 index = 105;</code>
      */
     public Builder clearIndex() {
-      bitField0_ = (bitField0_ & ~0x00000010);
+      bitField0_ = (bitField0_ & ~0x00000020);
       index_ = 0;
       
       return this;

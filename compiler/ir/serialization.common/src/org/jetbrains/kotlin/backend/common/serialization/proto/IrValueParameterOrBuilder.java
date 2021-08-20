@@ -44,6 +44,15 @@ public interface IrValueParameterOrBuilder extends
   int getDefaultValue();
 
   /**
+   * <code>optional int64 corresponding_property_symbol = 5;</code>
+   */
+  boolean hasCorrespondingPropertySymbol();
+  /**
+   * <code>optional int64 corresponding_property_symbol = 5;</code>
+   */
+  long getCorrespondingPropertySymbol();
+
+  /**
    * <code>optional int32 index = 105;</code>
    */
   boolean hasIndex();

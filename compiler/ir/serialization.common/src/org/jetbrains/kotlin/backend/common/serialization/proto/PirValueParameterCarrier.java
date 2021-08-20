@@ -91,6 +91,11 @@ public final class PirValueParameterCarrier extends
             varargElementType_ = input.readInt32();
             break;
           }
+          case 64: {
+            bitField0_ |= 0x00000040;
+            correspondingPropertySymbol_ = input.readInt64();
+            break;
+          }
         }
       }
     } catch (org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException e) {
@@ -253,6 +258,21 @@ public final class PirValueParameterCarrier extends
     return varargElementType_;
   }
 
+  public static final int CORRESPONDINGPROPERTYSYMBOL_FIELD_NUMBER = 8;
+  private long correspondingPropertySymbol_;
+  /**
+   * <code>optional int64 correspondingPropertySymbol = 8;</code>
+   */
+  public boolean hasCorrespondingPropertySymbol() {
+    return ((bitField0_ & 0x00000040) == 0x00000040);
+  }
+  /**
+   * <code>optional int64 correspondingPropertySymbol = 8;</code>
+   */
+  public long getCorrespondingPropertySymbol() {
+    return correspondingPropertySymbol_;
+  }
+
   private void initFields() {
     lastModified_ = 0;
     parentSymbol_ = 0L;
@@ -261,6 +281,7 @@ public final class PirValueParameterCarrier extends
     defaultValue_ = 0;
     type_ = 0;
     varargElementType_ = 0;
+    correspondingPropertySymbol_ = 0L;
   }
   private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
@@ -310,6 +331,9 @@ public final class PirValueParameterCarrier extends
     if (((bitField0_ & 0x00000020) == 0x00000020)) {
       output.writeInt32(7, varargElementType_);
     }
+    if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      output.writeInt64(8, correspondingPropertySymbol_);
+    }
     output.writeRawBytes(unknownFields);
   }
 
@@ -346,6 +370,10 @@ public final class PirValueParameterCarrier extends
     if (((bitField0_ & 0x00000020) == 0x00000020)) {
       size += org.jetbrains.kotlin.protobuf.CodedOutputStream
         .computeInt32Size(7, varargElementType_);
+    }
+    if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      size += org.jetbrains.kotlin.protobuf.CodedOutputStream
+        .computeInt64Size(8, correspondingPropertySymbol_);
     }
     size += unknownFields.size();
     memoizedSerializedSize = size;
@@ -455,6 +483,8 @@ public final class PirValueParameterCarrier extends
       bitField0_ = (bitField0_ & ~0x00000020);
       varargElementType_ = 0;
       bitField0_ = (bitField0_ & ~0x00000040);
+      correspondingPropertySymbol_ = 0L;
+      bitField0_ = (bitField0_ & ~0x00000080);
       return this;
     }
 
@@ -507,6 +537,10 @@ public final class PirValueParameterCarrier extends
         to_bitField0_ |= 0x00000020;
       }
       result.varargElementType_ = varargElementType_;
+      if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+        to_bitField0_ |= 0x00000040;
+      }
+      result.correspondingPropertySymbol_ = correspondingPropertySymbol_;
       result.bitField0_ = to_bitField0_;
       return result;
     }
@@ -540,6 +574,9 @@ public final class PirValueParameterCarrier extends
       }
       if (other.hasVarargElementType()) {
         setVarargElementType(other.getVarargElementType());
+      }
+      if (other.hasCorrespondingPropertySymbol()) {
+        setCorrespondingPropertySymbol(other.getCorrespondingPropertySymbol());
       }
       setUnknownFields(
           getUnknownFields().concat(other.unknownFields));
@@ -896,6 +933,38 @@ public final class PirValueParameterCarrier extends
     public Builder clearVarargElementType() {
       bitField0_ = (bitField0_ & ~0x00000040);
       varargElementType_ = 0;
+      
+      return this;
+    }
+
+    private long correspondingPropertySymbol_ ;
+    /**
+     * <code>optional int64 correspondingPropertySymbol = 8;</code>
+     */
+    public boolean hasCorrespondingPropertySymbol() {
+      return ((bitField0_ & 0x00000080) == 0x00000080);
+    }
+    /**
+     * <code>optional int64 correspondingPropertySymbol = 8;</code>
+     */
+    public long getCorrespondingPropertySymbol() {
+      return correspondingPropertySymbol_;
+    }
+    /**
+     * <code>optional int64 correspondingPropertySymbol = 8;</code>
+     */
+    public Builder setCorrespondingPropertySymbol(long value) {
+      bitField0_ |= 0x00000080;
+      correspondingPropertySymbol_ = value;
+      
+      return this;
+    }
+    /**
+     * <code>optional int64 correspondingPropertySymbol = 8;</code>
+     */
+    public Builder clearCorrespondingPropertySymbol() {
+      bitField0_ = (bitField0_ & ~0x00000080);
+      correspondingPropertySymbol_ = 0L;
       
       return this;
     }

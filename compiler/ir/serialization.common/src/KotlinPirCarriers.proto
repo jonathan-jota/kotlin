@@ -132,4 +132,5 @@ message PirValueParameterCarrier {
     optional int32 defaultValue = 5;
     required int32 type = 6;
     optional int32 varargElementType = 7;
+    optional int64 correspondingPropertySymbol = 8;
 }

@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.ir.declarations.persistent.carriers
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpressionBody
+import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
 import org.jetbrains.kotlin.ir.symbols.IrSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
@@ -17,6 +18,7 @@ internal interface ValueParameterCarrier : DeclarationCarrier{
     val defaultValueField: IrExpressionBody?
     val typeField: IrType
     val varargElementTypeField: IrType?
+    val correspondingPropertySymbolField: IrPropertySymbol?
 
     override fun clone(): ValueParameterCarrier {
         return ValueParameterCarrierImpl(
@@ -26,7 +28,8 @@ internal interface ValueParameterCarrier : DeclarationCarrier{
             annotationsField,
             defaultValueField,
             typeField,
-            varargElementTypeField
+            varargElementTypeField,
+            correspondingPropertySymbolField
         )
     }
 }
@@ -38,5 +41,6 @@ internal class ValueParameterCarrierImpl(
     override val annotationsField: List<IrConstructorCall>,
     override val defaultValueField: IrExpressionBody?,
     override val typeField: IrType,
-    override val varargElementTypeField: IrType?
+    override val varargElementTypeField: IrType?,
+    override val correspondingPropertySymbolField: IrPropertySymbol?
 ) : ValueParameterCarrier

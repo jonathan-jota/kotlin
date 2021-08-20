@@ -74,4 +74,13 @@ public interface PirValueParameterCarrierOrBuilder extends
    * <code>optional int32 varargElementType = 7;</code>
    */
   int getVarargElementType();
+
+  /**
+   * <code>optional int64 correspondingPropertySymbol = 8;</code>
+   */
+  boolean hasCorrespondingPropertySymbol();
+  /**
+   * <code>optional int64 correspondingPropertySymbol = 8;</code>
+   */
+  long getCorrespondingPropertySymbol();
 }

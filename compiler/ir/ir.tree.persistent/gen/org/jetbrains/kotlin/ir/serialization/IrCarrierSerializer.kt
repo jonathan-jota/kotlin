@@ -247,6 +247,7 @@ internal abstract class IrCarrierSerializer {
         carrier.defaultValueField?.let { proto.setDefaultValue(serializeExpressionBody(it)) }
         proto.setType(serializeType(carrier.typeField))
         carrier.varargElementTypeField?.let { proto.setVarargElementType(serializeType(it)) }
+        carrier.correspondingPropertySymbolField?.let { proto.setCorrespondingPropertySymbol(serializePropertySymbol(it)) }
         return proto.build().toByteArray()
     }
 }

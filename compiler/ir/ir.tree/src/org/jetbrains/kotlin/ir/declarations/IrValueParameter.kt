@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.ir.declarations
 import org.jetbrains.kotlin.descriptors.ParameterDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.expressions.IrExpressionBody
+import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
 import org.jetbrains.kotlin.ir.symbols.IrValueParameterSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
@@ -41,6 +42,10 @@ abstract class IrValueParameter : IrValueDeclaration() {
     abstract val isHidden: Boolean
 
     abstract var defaultValue: IrExpressionBody?
+
+    // if primary constructor parameter is declared with val/var property would be automatically created
+    // in that case its symbol is saved here
+    abstract var correspondingPropertySymbol: IrPropertySymbol?
 
     override fun <R, D> accept(visitor: IrElementVisitor<R, D>, data: D): R =
         visitor.visitValueParameter(this, data)

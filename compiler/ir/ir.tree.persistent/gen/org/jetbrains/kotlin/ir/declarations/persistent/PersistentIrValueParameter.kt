@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.ir.declarations.persistent.carriers.Carrier
 import org.jetbrains.kotlin.ir.declarations.persistent.carriers.ValueParameterCarrier
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpressionBody
+import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
 import org.jetbrains.kotlin.ir.symbols.IrValueParameterSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.util.IdSignature
@@ -95,6 +96,17 @@ internal class PersistentIrValueParameter(
             if (varargElementType !== v) {
                 setCarrier()
                 varargElementTypeField = v
+            }
+        }
+
+    override var correspondingPropertySymbolField: IrPropertySymbol? = correspondingPropertySymbol
+
+    override var correspondingPropertySymbol: IrPropertySymbol?
+        get() = getCarrier().correspondingPropertySymbolField
+        set(v) {
+            if (correspondingPropertySymbol !== v) {
+                setCarrier()
+                correspondingPropertySymbolField = v
             }
         }
 }

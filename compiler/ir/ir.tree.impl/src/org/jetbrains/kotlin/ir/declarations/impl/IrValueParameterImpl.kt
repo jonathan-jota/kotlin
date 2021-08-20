@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.ir.declarations.IrFactory
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpressionBody
+import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
 import org.jetbrains.kotlin.ir.symbols.IrValueParameterSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
@@ -57,4 +58,5 @@ class IrValueParameterImpl(
     override var annotations: List<IrConstructorCall> = emptyList()
 
     override var defaultValue: IrExpressionBody? = null
+    override var correspondingPropertySymbol: IrPropertySymbol? = null
 }

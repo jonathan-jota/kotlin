@@ -273,7 +273,8 @@ internal abstract class IrCarrierDeserializer {
             proto.annotationList.map { deserializeAnnotation(it) },
             if (proto.hasDefaultValue()) deserializeExpressionBody(proto.defaultValue) else null,
             deserializeType(proto.type),
-            if (proto.hasVarargElementType()) deserializeType(proto.varargElementType) else null
+            if (proto.hasVarargElementType()) deserializeType(proto.varargElementType) else null,
+            if (proto.hasCorrespondingPropertySymbol()) deserializePropertySymbol(proto.correspondingPropertySymbol) else null
         )
     }
 }

@@ -1177,6 +1177,7 @@ open class IrFileSerializer(
         if (!skipMutableState) {
             parameter.varargElementType?.let { proto.setVarargElementType(serializeIrType(it)) }
             parameter.defaultValue?.let { proto.setDefaultValue(serializeIrExpressionBody(it.expression)) }
+            parameter.correspondingPropertySymbol?.let { proto.setCorrespondingPropertySymbol(serializeIrSymbol(it)) }
         } else {
             proto.index = parameter.index
         }

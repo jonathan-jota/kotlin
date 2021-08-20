@@ -305,6 +305,9 @@ class IrDeclarationDeserializer(
             ).apply {
                 if (proto.hasDefaultValue())
                     defaultValue = deserializeExpressionBody(proto.defaultValue)
+                if (proto.hasCorrespondingPropertySymbol()) {
+                    correspondingPropertySymbol = deserializeIrSymbolAndRemap(proto.correspondingPropertySymbol) as IrPropertySymbol
+                }
             }
         }
 
