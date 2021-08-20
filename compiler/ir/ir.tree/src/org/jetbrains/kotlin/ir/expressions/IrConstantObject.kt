@@ -18,10 +18,10 @@ abstract class IrConstantPrimitive : IrConstantValue() {
 }
 
 abstract class IrConstantObject : IrConstantValue() {
-    abstract var constructor: IrConstructorSymbol
-    abstract val constructorArgumentsToProperties: List<IrPropertySymbol>
+    abstract val constructor: IrConstructorSymbol
     abstract val properties: Map<IrPropertySymbol, IrConstantValue>
     abstract fun putProperty(property: IrPropertySymbol, value: IrConstantValue)
+    abstract fun toConstructorCall(): IrConstructorCall
 }
 
 abstract class IrConstantArray : IrConstantValue() {

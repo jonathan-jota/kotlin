@@ -174,7 +174,6 @@ private class AutoboxingTransformer(val context: Context) : AbstractValueUsageTr
                         IrConstantObjectImpl(
                                 this.startOffset, this.endOffset,
                                 this.type.getClass()!!.primaryConstructor!!.symbol,
-                                listOf(property),
                                 mapOf(property to this),
                                 irBuiltIns.anyNType
                         )

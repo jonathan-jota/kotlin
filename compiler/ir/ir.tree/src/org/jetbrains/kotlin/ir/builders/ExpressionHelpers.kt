@@ -403,17 +403,9 @@ fun IrBuilderWithScope.irConstantObject(
         }.takeIf { it.size == elements.size }
         ?: throw IllegalArgumentException("Too many values provided for ${type.render()}")
 
-    val parametersToProperties = constructor.valueParameters.map { param ->
-        properties
-            .singleOrNull { field -> field.name == param.name }
-            ?.symbol
-            ?: throw IllegalArgumentException("No field matched to constructor arguemnt ${param.name}")
-    }
-
     return IrConstantObjectImpl(
         startOffset, endOffset,
         constructor.symbol,
-        parametersToProperties,
         propertiesMap
     )
 }

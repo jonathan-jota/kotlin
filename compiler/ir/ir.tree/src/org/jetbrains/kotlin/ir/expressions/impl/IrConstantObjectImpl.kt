@@ -46,15 +46,20 @@ class IrConstantPrimitiveImpl(
 class IrConstantObjectImpl constructor(
     override val startOffset: Int,
     override val endOffset: Int,
-    override var constructor: IrConstructorSymbol,
-    override val constructorArgumentsToProperties: List<IrPropertySymbol>,
+    override val constructor: IrConstructorSymbol,
     properties_: Map<IrPropertySymbol, IrConstantValue>,
     override var type: IrType = constructor.owner.constructedClassType,
 ) : IrConstantObject() {
     override val properties = properties_.toMutableMap()
 
     init {
-        require(properties.all { it.key.owner.backingField != null })
+        require(properties.all { it.key.owner.backingField != null }) { "Properties of constant object must have backing field"}
+        require(constructor.owner.valueParameters.all { it.correspondingPropertySymbol != null }) {
+            "All constructor of constant object parameters must be val"
+        }
+        require(constructor.owner.valueParameters.all { it.correspondingPropertySymbol!! in properties }) {
+            "All constructor of constant object parameters values must be given"
+        }
     }
 
     override fun <R, D> accept(visitor: IrElementVisitor<R, D>, data: D): R {
@@ -63,6 +68,14 @@ class IrConstantObjectImpl constructor(
 
     override fun putProperty(property: IrPropertySymbol, value: IrConstantValue) {
         properties[property] = value
+    }
+
+    override fun toConstructorCall(): IrConstructorCall {
+        return IrConstructorCallImpl.fromSymbolOwner(startOffset, endOffset, type, constructor).apply {
+            constructor.owner.valueParameters.forEach {
+                putValueArgument(it.index, properties[it.correspondingPropertySymbol]!!)
+            }
+        }
     }
 
     override fun contentEquals(other: IrConstantValue): Boolean =
