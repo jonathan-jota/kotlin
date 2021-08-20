@@ -82,7 +82,7 @@ internal class KTypeGenerator(
         } catch (t: RecursiveBoundsException) {
             if (needExactTypeParameters)
                 this@KTypeGenerator.context.reportCompilationError(t.message!!, irFile, irElement)
-            return irConstantObject(symbols.kTypeImplForTypeParametersWithRecursiveBounds.defaultType, emptyMap())
+            return irConstantObject(symbols.kTypeImplForTypeParametersWithRecursiveBounds.owner, emptyMap())
         }
     }
 
@@ -92,7 +92,7 @@ internal class KTypeGenerator(
         isMarkedNullable: Boolean,
         leaveReifiedForLater: Boolean,
         seenTypeParameters: MutableSet<IrTypeParameter>
-    ): IrConstantValue = irConstantObject(symbols.kTypeImpl.owner.defaultType, mapOf(
+    ): IrConstantValue = irConstantObject(symbols.kTypeImpl.owner, mapOf(
         "classifier" to kClassifier,
         "arguments" to irKTypeProjectionsList(irTypeArguments, leaveReifiedForLater, seenTypeParameters),
         "isMarkedNullable" to irConstantPrimitive(irBoolean(isMarkedNullable)),
@@ -107,7 +107,7 @@ internal class KTypeGenerator(
     ): IrConstantValue {
         if (!seenTypeParameters.add(typeParameter))
             throw RecursiveBoundsException("Non-reified type parameters with recursive bounds are not supported yet: ${typeParameter.render()}")
-        val result = irConstantObject(symbols.kTypeParameterImpl.defaultType, mapOf(
+        val result = irConstantObject(symbols.kTypeParameterImpl.owner, mapOf(
                 "name" to irStaticString(typeParameter.name.asString()),
                 "containerFqName" to irStaticString(typeParameter.parentUniqueName),
                 "upperBounds" to irKTypeList(typeParameter.superTypes, leaveReifiedForLater, seenTypeParameters),
@@ -133,7 +133,7 @@ internal class KTypeGenerator(
         val elements = irConstantArray(symbols.array.typeWith(itemType),
                 types.map { irKType(it, leaveReifiedForLater, seenTypeParameters) }
         )
-        return irConstantObject(symbols.arrayAsList.typeWith(itemType), mapOf(
+        return irConstantObject(symbols.arrayAsList.owner, mapOf(
                 "array" to elements
         ))
     }
@@ -169,7 +169,7 @@ internal class KTypeGenerator(
                     }
                 })
         return irConstantObject(
-                symbols.kTypeProjectionList.defaultType,
+                symbols.kTypeProjectionList.owner,
                 mapOf(
                         "variance" to variance,
                         "type" to type
@@ -187,13 +187,13 @@ internal fun IrBuilderWithScope.irKClass(context: KonanBackendContext, symbol: I
             it is ClassDescriptor && it.fqNameUnsafe == InteropFqNames.nativePointed
         } -> irKClassUnsupported(context, "KClass for interop types is not supported yet")
 
-        else -> irConstantObject(symbols.kClassImpl.defaultType, mapOf(
+        else -> irConstantObject(symbols.kClassImpl.owner, mapOf(
                 "typeInfo" to irConstantIntrinsic(irCall(symbols.getClassTypeInfo, listOf(symbol.typeWithStarProjections)))
         ))
     }
 }
 
 private fun IrBuilderWithScope.irKClassUnsupported(context: KonanBackendContext, message: String) =
-        irConstantObject(context.ir.symbols.kClassUnsupportedImpl.defaultType, mapOf(
+        irConstantObject(context.ir.symbols.kClassUnsupportedImpl.owner, mapOf(
                 "message" to irStaticString(message)
         ))

@@ -12,7 +12,6 @@ import org.jetbrains.kotlin.ir.expressions.impl.*
 import org.jetbrains.kotlin.ir.symbols.*
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
-import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.utils.addToStdlib.assertedCast
 
 val IrBuilderWithScope.parent get() = scope.getLocalDeclarationParent()
@@ -385,27 +384,24 @@ fun IrBuilderWithScope.irConstantArray(type: IrType, elements: List<IrConstantVa
         elements
     )
 
-fun IrBuilderWithScope.irConstantObject(
-    type: IrType,
-    elements: Map<String, IrConstantValue>) : IrConstantValue {
-    val properties = generateSequence(type.getClass()!!) {
+fun IrBuilderWithScope.irConstantObject(clazz: IrClass, elements: Map<String, IrConstantValue>): IrConstantValue {
+    val superClassSeq = generateSequence(clazz) {
         it.superTypes.asSequence()
-            .mapNotNull { type -> type.classOrNull?.owner?.takeIf { clazz -> !type.isAny() && !clazz.isInterface } }
-            .singleOrNull()
-    }.flatMap { it.properties.filter { it.backingField != null } }
-
-    val constructor = type.getClass()!!.primaryConstructor!!
-
-    val propertiesMap = properties
+            .mapNotNull { type -> type.takeIf { !type.isAny() }?.classOrNull?.owner }
+            .singleOrNull { !it.isInterface }
+    }
+    val propertiesMap = superClassSeq
+        .flatMap { it.properties }
+        .filter { it.backingField != null }
         .associate {
             val value = (elements[it.name.asString()] ?: throw IllegalArgumentException("No value for field named ${it.name} provided"))
             it.symbol to value
         }.takeIf { it.size == elements.size }
-        ?: throw IllegalArgumentException("Too many values provided for ${type.render()}")
+        ?: throw IllegalArgumentException("Too many values provided for ${clazz.name} construction")
 
     return IrConstantObjectImpl(
         startOffset, endOffset,
-        constructor.symbol,
+        clazz.primaryConstructor!!.symbol,
         propertiesMap
     )
 }

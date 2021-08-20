@@ -21,7 +21,6 @@ import org.jetbrains.kotlin.ir.expressions.impl.*
 import org.jetbrains.kotlin.ir.symbols.impl.IrFieldSymbolImpl
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.types.IrType
-import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 
@@ -29,9 +28,8 @@ internal class PropertyDelegationLowering(val context: Context) : FileLoweringPa
     private var tempIndex = 0
 
     private fun getKPropertyImpl(receiverTypes: List<IrType>,
-                                 returnType: IrType,
                                  isLocal: Boolean,
-                                 isMutable: Boolean): IrType {
+                                 isMutable: Boolean): IrClass {
 
         val symbols = context.ir.symbols
 
@@ -60,7 +58,7 @@ internal class PropertyDelegationLowering(val context: Context) : FileLoweringPa
                     }
                 }
 
-        return classSymbol.typeWith(receiverTypes + listOf(returnType))
+        return classSymbol.owner
     }
 
     override fun lower(irFile: IrFile) {
@@ -221,23 +219,22 @@ internal class PropertyDelegationLowering(val context: Context) : FileLoweringPa
                 }
             }
 
-            val type = getKPropertyImpl(
+            val clazz = getKPropertyImpl(
                     receiverTypes = receiverTypes,
-                    returnType = returnType,
                     isLocal = false,
                     isMutable = setterCallableReference != null)
 
             val name = irString(expression.symbol.owner.name.asString())
 
             val initializer = if (dispatchReceiver == null && extensionReceiver == null) {
-                return irConstantObject(type, @OptIn(ExperimentalStdlibApi::class) buildMap {
+                return irConstantObject(clazz, @OptIn(ExperimentalStdlibApi::class) buildMap {
                     put("name", irConstantPrimitive(name))
                     put("getter", irConstantIntrinsic(getterCallableReference))
                     if (setterCallableReference != null) {
                         put("setter", irConstantIntrinsic(setterCallableReference))
                     }
                 })
-            } else irCall(type.getClass()!!.constructors.single(), receiverTypes + listOf(returnType)).apply {
+            } else irCall(clazz.constructors.single(), receiverTypes + listOf(returnType)).apply {
                 putValueArgument(0, name)
                 putValueArgument(1, getterCallableReference)
                 if (setterCallableReference != null)
@@ -254,7 +251,7 @@ internal class PropertyDelegationLowering(val context: Context) : FileLoweringPa
         val symbols = context.ir.symbols
         return irBuilder.run {
             irConstantObject(
-                    symbols.kLocalDelegatedPropertyImpl.typeWith(propertyType),
+                    symbols.kLocalDelegatedPropertyImpl.owner,
                     mapOf(
                             "name" to irConstantPrimitive(irString(propertyName)),
                             "returnType" to with(kTypeGenerator) { irKType(propertyType) }

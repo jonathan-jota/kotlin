@@ -150,7 +150,7 @@ internal class FunctionReferenceLowering(val context: Context): FileLoweringPass
                         expression.startOffset, expression.endOffset)
                 val arguments = expression.getArguments()
                 if (arguments.isEmpty()) {
-                    return irBuilder.irConstantObject(loweredFunctionReference.functionReferenceClass.defaultType, emptyMap())
+                    return irBuilder.irConstantObject(loweredFunctionReference.functionReferenceClass, emptyMap())
                 }
                 return irBuilder.irCall(loweredFunctionReference.functionReferenceConstructor.symbol).apply {
                     arguments.forEachIndexed { index, argument ->

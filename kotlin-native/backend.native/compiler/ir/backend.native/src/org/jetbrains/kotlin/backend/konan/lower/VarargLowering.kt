@@ -309,7 +309,7 @@ internal class VarargInjectionLowering constructor(val context: KonanBackendCont
                 }
             }
             return builder.irConstantObject(
-                    arraySymbol.defaultType,
+                    arraySymbol.owner,
                     mapOf(
                             "storage" to wrappedArrayHandle.createStatic(builder, elementType, casted)
                     )
