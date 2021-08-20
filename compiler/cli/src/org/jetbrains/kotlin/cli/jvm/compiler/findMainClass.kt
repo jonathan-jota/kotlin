@@ -5,24 +5,23 @@
 
 package org.jetbrains.kotlin.cli.jvm.compiler
 
-import org.jetbrains.kotlin.cfg.getElementParentDeclaration
 import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.fileClasses.JvmFileClassUtil
 import org.jetbrains.kotlin.idea.MainFunctionDetector
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtObjectDeclaration
+import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 import org.jetbrains.kotlin.resolve.BindingContext
 
 fun findMainClass(bindingContext: BindingContext, languageVersionSettings: LanguageVersionSettings, files: List<KtFile>): FqName? {
     val mainFunctionDetector = MainFunctionDetector(bindingContext, languageVersionSettings)
     return files.asSequence()
         .map { file ->
-            mainFunctionDetector.findMainFunction(file.declarations)?.let { mainFunction ->
+            findMainFunction(file, mainFunctionDetector)?.let { mainFunction ->
                 if (mainFunction.isTopLevel) {
                     JvmFileClassUtil.getFileClassInfoNoResolve(file).facadeClassFqName
                 } else {
-                    val parent = mainFunction.getElementParentDeclaration()
+                    val parent = mainFunction.getParentOfType<KtClassOrObject>(strict = true)
                     if (parent is KtObjectDeclaration && parent.isCompanion()) {
                         mainFunction.fqName?.parent()?.parent()
                     } else {
@@ -33,3 +32,12 @@ fun findMainClass(bindingContext: BindingContext, languageVersionSettings: Langu
         }
         .singleOrNull { it != null }
 }
+
+fun findMainFunction(container: KtDeclarationContainer, mainFunctionDetector: MainFunctionDetector): KtNamedFunction? =
+    container.declarations.mapNotNull { declaration ->
+        when (declaration) {
+            is KtNamedFunction -> declaration.takeIf(mainFunctionDetector::isMain)
+            is KtDeclarationContainer -> findMainFunction(declaration, mainFunctionDetector)
+            else -> null
+        }
+    }.singleOrNull()

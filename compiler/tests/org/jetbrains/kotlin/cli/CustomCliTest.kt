@@ -39,7 +39,7 @@ class CustomCliTest : TestCaseWithTmpdir() {
         compileAndCheckMainClass(listOf(main1Kt, main2Kt), expectedMainClass = null)
     }
 
-    fun testObjectJvmStaticFunctionMainClass(){
+    fun testObjectJvmStaticFunctionMainClass() {
         val mainKt = tmpdir.resolve("main.kt").apply {
             writeText(
                 """
@@ -53,7 +53,7 @@ class CustomCliTest : TestCaseWithTmpdir() {
         compileAndCheckMainClass(listOf(mainKt), expectedMainClass = "ObjectMain")
     }
 
-    fun testCompanionObjectJvmStaticFunctionMainClass(){
+    fun testCompanionObjectJvmStaticFunctionMainClass() {
         val mainKt = tmpdir.resolve("main.kt").apply {
             writeText(
                 """
@@ -69,7 +69,7 @@ class CustomCliTest : TestCaseWithTmpdir() {
         compileAndCheckMainClass(listOf(mainKt), expectedMainClass = "Test")
     }
 
-    fun testInterfaceCompanionObjectJvmStaticFunctionMainClass(){
+    fun testInterfaceCompanionObjectJvmStaticFunctionMainClass() {
         val mainKt = tmpdir.resolve("main.kt").apply {
             writeText(
                 """
@@ -83,6 +83,25 @@ class CustomCliTest : TestCaseWithTmpdir() {
             )
         }
         compileAndCheckMainClass(listOf(mainKt), expectedMainClass = "Test")
+    }
+
+    fun testMultipleMainsInOneFile() {
+        val mainKt = tmpdir.resolve("main.kt").apply {
+            writeText(
+                """
+                    object ObjectMain {
+                        @JvmStatic
+                        fun main(args: Array<String>) = println("hello")
+                    }
+                    object ObjectMain2 {
+                        @JvmStatic
+                        fun main(args: Array<String>) = println("hello2")
+                    }
+                    fun main(args: Array<String>) = println("hello3")
+                """
+            )
+        }
+        compileAndCheckMainClass(listOf(mainKt), expectedMainClass = null)
     }
 
     private fun compileAndCheckMainClass(sourceFiles: List<File>, expectedMainClass: String?) {

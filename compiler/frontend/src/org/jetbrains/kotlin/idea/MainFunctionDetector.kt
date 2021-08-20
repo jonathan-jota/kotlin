@@ -22,9 +22,7 @@ import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtDeclaration
-import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtNamedFunction
-import org.jetbrains.kotlin.psi.psiUtil.getChildrenOfType
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
@@ -175,12 +173,6 @@ class MainFunctionDetector {
 
         return null
     }
-
-    fun findMainFunction(declarations: List<KtElement>): KtNamedFunction? =
-        declarations
-            .ifEmpty { return@findMainFunction null }
-            .filterIsInstance<KtNamedFunction>().find { isMain(it) }
-            ?: findMainFunction(declarations.flatMap { it.getChildrenOfType<KtElement>().toList() })
 
     private fun isParameterNumberSuitsForMain(
         parametersCount: Int,
