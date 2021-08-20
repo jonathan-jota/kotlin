@@ -62,5 +62,6 @@ internal fun ConeDiagnostic.getCandidateSymbols(): Collection<FirBasedSymbol<*>>
         is ConeNoTypeArgumentsOnRhsError -> listOf(symbol)
         is ConeResolutionToClassifierError -> listOf(classSymbol)
         is ConeWrongNumberOfTypeArgumentsError -> listOf(symbol)
+        is ConeFunctionCallExpectedError -> candidates.map { it.symbol }
         else -> emptyList()
     }
