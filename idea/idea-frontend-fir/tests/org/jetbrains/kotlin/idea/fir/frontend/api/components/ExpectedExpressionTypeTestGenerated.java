@@ -31,6 +31,12 @@ public class ExpectedExpressionTypeTestGenerated extends AbstractExpectedExpress
     }
 
     @Test
+    @TestMetadata("functionExpressionBodyBlockExpression.kt")
+    public void testFunctionExpressionBodyBlockExpression() throws Exception {
+        runTest("idea/idea-frontend-fir/testData/components/expectedExpressionType/functionExpressionBodyBlockExpression.kt");
+    }
+
+    @Test
     @TestMetadata("functionExpressionBodyQualified.kt")
     public void testFunctionExpressionBodyQualified() throws Exception {
         runTest("idea/idea-frontend-fir/testData/components/expectedExpressionType/functionExpressionBodyQualified.kt");
@@ -109,6 +115,18 @@ public class ExpectedExpressionTypeTestGenerated extends AbstractExpectedExpress
     }
 
     @Test
+    @TestMetadata("lambdaWithExplicitTypeFromVariable.kt")
+    public void testLambdaWithExplicitTypeFromVariable() throws Exception {
+        runTest("idea/idea-frontend-fir/testData/components/expectedExpressionType/lambdaWithExplicitTypeFromVariable.kt");
+    }
+
+    @Test
+    @TestMetadata("lambdaWithoutReturnNorExplicitType.kt")
+    public void testLambdaWithoutReturnNorExplicitType() throws Exception {
+        runTest("idea/idea-frontend-fir/testData/components/expectedExpressionType/lambdaWithoutReturnNorExplicitType.kt");
+    }
+
+    @Test
     @TestMetadata("propertyDeclaration.kt")
     public void testPropertyDeclaration() throws Exception {
         runTest("idea/idea-frontend-fir/testData/components/expectedExpressionType/propertyDeclaration.kt");
@@ -154,6 +172,42 @@ public class ExpectedExpressionTypeTestGenerated extends AbstractExpectedExpress
     @TestMetadata("returnFromLambda.kt")
     public void testReturnFromLambda() throws Exception {
         runTest("idea/idea-frontend-fir/testData/components/expectedExpressionType/returnFromLambda.kt");
+    }
+
+    @Test
+    @TestMetadata("sam.kt")
+    public void testSam() throws Exception {
+        runTest("idea/idea-frontend-fir/testData/components/expectedExpressionType/sam.kt");
+    }
+
+    @Test
+    @TestMetadata("samAsArgument.kt")
+    public void testSamAsArgument() throws Exception {
+        runTest("idea/idea-frontend-fir/testData/components/expectedExpressionType/samAsArgument.kt");
+    }
+
+    @Test
+    @TestMetadata("samAsConstructorArgument.kt")
+    public void testSamAsConstructorArgument() throws Exception {
+        runTest("idea/idea-frontend-fir/testData/components/expectedExpressionType/samAsConstructorArgument.kt");
+    }
+
+    @Test
+    @TestMetadata("samAsReturn.kt")
+    public void testSamAsReturn() throws Exception {
+        runTest("idea/idea-frontend-fir/testData/components/expectedExpressionType/samAsReturn.kt");
+    }
+
+    @Test
+    @TestMetadata("samWithExplicitTypeFromProperty.kt")
+    public void testSamWithExplicitTypeFromProperty() throws Exception {
+        runTest("idea/idea-frontend-fir/testData/components/expectedExpressionType/samWithExplicitTypeFromProperty.kt");
+    }
+
+    @Test
+    @TestMetadata("samWithTypeCast.kt")
+    public void testSamWithTypeCast() throws Exception {
+        runTest("idea/idea-frontend-fir/testData/components/expectedExpressionType/samWithTypeCast.kt");
     }
 
     @Test
