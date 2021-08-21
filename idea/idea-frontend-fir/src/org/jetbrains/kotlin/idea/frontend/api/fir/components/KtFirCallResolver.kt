@@ -11,7 +11,10 @@ import org.jetbrains.kotlin.fir.analysis.diagnostics.FirDiagnostic
 import org.jetbrains.kotlin.fir.declarations.FirConstructor
 import org.jetbrains.kotlin.fir.expressions.*
 import org.jetbrains.kotlin.fir.realPsi
-import org.jetbrains.kotlin.fir.references.*
+import org.jetbrains.kotlin.fir.references.FirErrorNamedReference
+import org.jetbrains.kotlin.fir.references.FirReference
+import org.jetbrains.kotlin.fir.references.FirResolvedNamedReference
+import org.jetbrains.kotlin.fir.references.FirSuperReference
 import org.jetbrains.kotlin.fir.references.impl.FirSimpleNamedReference
 import org.jetbrains.kotlin.fir.resolve.calls.FirErrorReferenceWithCandidate
 import org.jetbrains.kotlin.fir.symbols.impl.FirNamedFunctionSymbol
@@ -34,7 +37,10 @@ import org.jetbrains.kotlin.idea.frontend.api.tokens.ValidityToken
 import org.jetbrains.kotlin.idea.frontend.api.withValidityAssertion
 import org.jetbrains.kotlin.idea.references.FirReferenceResolveHelper
 import org.jetbrains.kotlin.name.CallableId
-import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.KtBinaryExpression
+import org.jetbrains.kotlin.psi.KtCallElement
+import org.jetbrains.kotlin.psi.KtUnaryExpression
+import org.jetbrains.kotlin.psi.KtValueArgument
 import org.jetbrains.kotlin.util.OperatorNameConventions
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
@@ -170,10 +176,10 @@ internal class KtFirCallResolver(
         val ktArgumentMapping = LinkedHashMap<KtValueArgument, KtValueParameterSymbol>()
         argumentMapping?.let {
             fun FirExpression.findKtValueArgument(): KtValueArgument? {
-                // For spread and named arguments, the source is the KtValueArgument.
+                // For spread, named, and lambda arguments, the source is the KtValueArgument.
                 // For other arguments, the source is the KtExpression itself and its parent should be the KtValueArgument.
                 val psi = when (this) {
-                    is FirNamedArgumentExpression, is FirSpreadArgumentExpression -> realPsi
+                    is FirNamedArgumentExpression, is FirSpreadArgumentExpression, is FirLambdaArgumentExpression -> realPsi
                     else -> realPsi?.parent
                 }
                 return psi as? KtValueArgument
