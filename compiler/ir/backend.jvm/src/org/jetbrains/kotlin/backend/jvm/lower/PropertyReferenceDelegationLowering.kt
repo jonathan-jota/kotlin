@@ -153,7 +153,7 @@ private class PropertyReferenceDelegationTransformer(val context: JvmBackendCont
 
         val delegateMethod = context.createSyntheticMethodForPropertyDelegate(this).apply {
             body = context.createJvmIrBuilder(symbol).run {
-                val propertyOwner = if (getter?.dispatchReceiverParameter != null) valueParameters[0] else null
+                val propertyOwner = if (getter?.dispatchReceiverParameter != null) dispatchReceiverParameter else null
                 val boundReceiver = backingField?.let { irGetField(propertyOwner?.let(::irGet), it) }
                     ?: receiver?.inline(originalThis, propertyOwner)
                 irExprBody(with(delegate) {

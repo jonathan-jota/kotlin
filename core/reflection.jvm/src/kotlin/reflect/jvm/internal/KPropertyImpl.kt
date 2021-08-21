@@ -108,11 +108,25 @@ internal abstract class KPropertyImpl<out V> private constructor(
             when (fieldOrMethod) {
                 null -> null
                 is Field -> fieldOrMethod.get(realReceiver1)
-                is Method -> when (fieldOrMethod.parameterTypes.size) {
-                    0 -> fieldOrMethod.invoke(null)
-                    1 -> fieldOrMethod.invoke(null, realReceiver1 ?: defaultPrimitiveValue(fieldOrMethod.parameterTypes[0]))
-                    2 -> fieldOrMethod.invoke(null, realReceiver1, realReceiver2 ?: defaultPrimitiveValue(fieldOrMethod.parameterTypes[1]))
-                    else -> throw AssertionError("delegate method $fieldOrMethod should take 0, 1, or 2 parameters")
+                is Method -> {
+                    val hasDispatchReceiver = descriptor.dispatchReceiverParameter != null
+                    when (fieldOrMethod.parameterTypes.size) {
+                        0 -> fieldOrMethod.invoke(
+                            if (hasDispatchReceiver) realReceiver1 else null
+                        )
+                        1 -> fieldOrMethod.invoke(
+                            if (hasDispatchReceiver) realReceiver1 else null,
+                            if (hasDispatchReceiver)
+                                realReceiver2
+                            else
+                                realReceiver1 ?: defaultPrimitiveValue(fieldOrMethod.parameterTypes[0]),
+                        )
+                        2 -> fieldOrMethod.invoke(
+                            realReceiver1,
+                            realReceiver2 ?: defaultPrimitiveValue(fieldOrMethod.parameterTypes[1]),
+                        )
+                        else -> throw AssertionError("delegate method $fieldOrMethod should take 0, 1, or 2 parameters")
+                    }
                 }
                 else -> throw AssertionError("delegate field/method $fieldOrMethod neither field nor method")
             }

@@ -186,11 +186,13 @@ class JvmPropertiesLowering(private val backendContext: JvmBackendContext) : IrE
             this.returnType = returnType
         }.apply {
             var index = 0
-            valueParameters = listOfNotNull(
-                declaration.getter?.dispatchReceiverParameter?.takeIf { !isStatic }?.let {
+            if (!isStatic) {
+                dispatchReceiverParameter = declaration.getter?.dispatchReceiverParameter?.let {
                     // Synthetic methods don't get generic type signatures anyway, so not exactly useful to preserve type parameters.
                     it.copyTo(this, type = it.type.eraseTypeParameters(), index = index++)
-                },
+                }
+            }
+            valueParameters = listOfNotNull(
                 declaration.getter?.extensionReceiverParameter?.let {
                     it.copyTo(this, type = it.type.eraseTypeParameters(), index = index)
                 }
